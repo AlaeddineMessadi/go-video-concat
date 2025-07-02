@@ -25,7 +25,6 @@ services:
       MINIO_PASSWORD: ${Minio_password}
     depends_on:
       minio:
-        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
@@ -40,6 +39,11 @@ services:
       - "9001:9001"
     volumes:
       - "./data/minio:/data:Z"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - inner
 
