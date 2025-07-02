@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   app:
     build: .
@@ -70,7 +68,7 @@ services:
 
 networks:
   inner:
-    driver: bridge
+    external: true
 
 volumes:
   postgres_data:
