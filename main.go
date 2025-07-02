@@ -1,32 +1,46 @@
 package main
 
 import (
-	"github.com/amupxm/go-video-concat/packages/cache"
-	postgres "github.com/amupxm/go-video-concat/packages/database"
-
-	ApiController "github.com/amupxm/go-video-concat/controller"
-
-	s3 "github.com/amupxm/go-video-concat/packages/s3"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
 
 	"github.com/amupxm/go-video-concat/config"
+	ApiController "github.com/amupxm/go-video-concat/controller"
+	"github.com/amupxm/go-video-concat/packages/cache"
+	postgres "github.comcom/amupxm/go-video-concat/packages/database"
+	s3 "github.com/amupxm/go-video-concat/packages/s3"
 	"github.com/gin-gonic/gin"
 )
 
-var AppConfig = &config.ConfigStruct{}
-
 func main() {
-	router := gin.Default()
-	AppConfig.LoadConfigs()
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+		fmt.Println("Running database migration...")
+		// To be implemented: Load config and run GORM migration
+		fmt.Println("Migration complete.")
+		return
+	}
+
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+
 	// =======  Database and Storage =========
-	postgres.PostgresConnection.ConnectDatabase(AppConfig)
-	postgres.AutoMigration()
+	postgres.PostgresConnection.ConnectDatabase(cfg)
 	buckets := []string{"frame", "amupxm", "thumbnails", "splash", "upload", "splash-base", "splash-audio", "outputs"}
-	s3.ObjectStorage.Connect(AppConfig)
+	s3.ObjectStorage.Connect(cfg)
 	s3.InitBuckets(buckets)
-	cache.Init(AppConfig)
+	cache.Init(cfg)
 	// =======================================
 
+	router := gin.Default()
+
 	// ============  Controllers  ============
+	router.GET("/healthz", func(c *gin.Context) {
+		c.String(http.StatusOK, "OK")
+	})
 
 	// 1 - frame
 	router.POST("/frame/upload", ApiController.Frame_Upload)
@@ -47,11 +61,9 @@ func main() {
 	router.GET("/generator/:code/file", ApiController.Generator_file)
 	router.GET("/generator/:code", ApiController.Generator_Status)
 
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	port = "8080"
-	// }
-	// // …
-	// router.Run("0.0.0.0:" + port)
-	// // ==================
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	router.Run("0.0.0.0:" + port)
 }

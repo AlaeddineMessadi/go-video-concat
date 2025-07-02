@@ -1,17 +1,12 @@
-FROM  golang:1.16.4
-
-WORKDIR /go/src/app/amupxm
-
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libmediainfo-dev \
-    zlib* \
-    gcc  && rm -rf /var/lib/apt/lists/*
+FROM golang:1.20-alpine AS builder
+RUN apk add --no-cache git ffmpeg
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
+RUN CGO_ENABLED=0 go build -o server .
 
-RUN go get .
-
-
-RUN go build -v .
-
-CMD [ "./go-video-concat" ]
+FROM alpine:3.17
+RUN apk add --no-cache ffmpeg ca-certificates
+COPY --from=builder /app/server /server
+ENTRYPOINT ["/server"]
