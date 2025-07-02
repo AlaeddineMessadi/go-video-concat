@@ -45,13 +45,14 @@ func (cfg *ConfigStruct) LoadConfigs() {
 	cfg.Database.Postgres_password = os.Getenv("dbpass")
 	cfg.Database.Postgres_port = os.Getenv("dbport")
 	cfg.Database.Postgres_username = os.Getenv("dbusername")
-	cfg.Storage.Minio_host = os.Getenv("Minio_host")
-	cfg.Storage.Minio_password = os.Getenv("Minio_password")
-	cfg.Storage.Minio_user = os.Getenv("Minio_user")
 
 	cfg.Redis.Host = os.Getenv("Redis_host")
 	cfg.Redis.Password = os.Getenv("Redis_password")
 	cfg.Redis.DB = 0
+
+	cfg.Storage.Minio_host     = os.Getenv("MINIO_HOST")
+	cfg.Storage.Minio_user     = os.Getenv("MINIO_ROOT_USER")
+	cfg.Storage.Minio_password = os.Getenv("MINIO_ROOT_PASSWORD")
 
 	config = cfg
 }

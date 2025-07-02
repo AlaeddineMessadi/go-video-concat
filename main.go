@@ -47,5 +47,11 @@ func main() {
 	router.GET("/generator/:code/file", ApiController.Generator_file)
 	router.GET("/generator/:code", ApiController.Generator_Status)
 
-	router.Run()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	// …
+	router.Run("0.0.0.0:" + port)
+	// ==================
 }
