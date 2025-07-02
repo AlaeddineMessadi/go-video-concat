@@ -2,7 +2,7 @@ package cache
 
 import (
 	"context"
-	"log"
+	"github.com/amupxm/go-video-concat/internal/logger"
 
 	"github.com/amupxm/go-video-concat/config"
 	"github.com/go-redis/redis/v8"
@@ -15,11 +15,11 @@ type CacheRedisContext struct {
 var ctx = context.Background()
 var CacheRedis = CacheRedisContext{}
 
-func Init(config *config.ConfigStruct) {
+func Init(cfg *config.Config) {
 	db := redis.NewClient(&redis.Options{
-		Addr:     config.Redis.Host,
-		Password: config.Redis.Password,
-		DB:       int(config.Redis.DB),
+		Addr:     cfg.Redis.Host,
+		Password: cfg.Redis.Password,
+		DB:       int(cfg.Redis.DB),
 	})
 	CacheRedis.Cli = db
 }
@@ -52,7 +52,7 @@ func UpdateStatus(uuid, message string, status bool) bool {
 
 func GetStatus(code string) (bool, string) {
 	var r = &CacheRedis
-	log.Println(code + ":status")
+	logger.Log.Info(code + ":status")
 	respStatus := r.Cli.Get(ctx, code+":status")
 	respMessage := r.Cli.Get(ctx, code+":message")
 	message := respMessage.Val()

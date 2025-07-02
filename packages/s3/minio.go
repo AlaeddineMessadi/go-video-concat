@@ -2,7 +2,7 @@ package s3
 
 import (
 	"context"
-	"log"
+	"github.com/amupxm/go-video-concat/internal/logger"
 
 	"github.com/amupxm/go-video-concat/config"
 	"github.com/minio/minio-go/v7"
@@ -15,14 +15,14 @@ type ObjectStorageStruct struct {
 
 var ObjectStorage = ObjectStorageStruct{}
 
-func (object *ObjectStorageStruct) Connect(cfg *config.ConfigStruct) {
+func (object *ObjectStorageStruct) Connect(cfg *config.Config) {
 
-	m, err := minio.New(cfg.Storage.Minio_host, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.Storage.Minio_user, cfg.Storage.Minio_password, ""),
+	m, err := minio.New(cfg.Storage.MinioHost, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.Storage.MinioUser, cfg.Storage.MinioPassword, ""),
 		Secure: false,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		logger.Log.Fatal(err)
 	}
 	ObjectStorage.Client = m
 }
@@ -31,13 +31,13 @@ func InitBuckets(buckets []string) {
 	for _, bucket := range buckets {
 		s, err := ObjectStorage.Client.BucketExists(context.Background(), bucket)
 		if err != nil {
-			log.Fatal(err)
+			logger.Log.Fatal(err)
 		}
 		if !s {
 			if err := ObjectStorage.Client.MakeBucket(context.Background(),
 				bucket,
 				minio.MakeBucketOptions{Region: "us-east-1", ObjectLocking: false}); err != nil {
-				log.Fatal(err)
+				logger.Log.Fatal(err)
 			}
 		}
 	}

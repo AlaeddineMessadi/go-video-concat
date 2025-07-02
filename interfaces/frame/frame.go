@@ -3,7 +3,7 @@ package frame
 import (
 	"context"
 	"errors"
-	"log"
+	"github.com/amupxm/go-video-concat/internal/logger"
 
 	"github.com/amupxm/go-video-concat/models"
 	postgres "github.com/amupxm/go-video-concat/packages/database"
@@ -30,7 +30,7 @@ func (frame *Frame) AddFrame() bool {
 	// check file code exists in storage
 	_, err := ObjectStorage.Client.StatObject(context.Background(), "frame", frame.FileCode, minio.StatObjectOptions{})
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err)
 		return false
 
 	}

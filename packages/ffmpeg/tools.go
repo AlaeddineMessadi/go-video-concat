@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/amupxm/go-video-concat/internal/logger"
 	"net/http"
 	"sync"
 
@@ -136,7 +136,7 @@ func (f *FFmpeg_Generator) DownloadFiles() {
 	count := 0
 	for responseFromInnerChannel := range innerResponseChannel {
 		isAllDownloaded = isAllDownloaded && responseFromInnerChannel.Status
-		log.Println("Downloaded to :  " + f.Dir + f.Recipe.Chunks[count].Name)
+		logger.Log.Infof("Downloaded to: %s", f.Dir+f.Recipe.Chunks[count].Name)
 		count++
 		if count == len(f.Recipe.Chunks) {
 			close(innerResponseChannel)
@@ -232,10 +232,10 @@ func (f *FFmpeg_Generator) WriteTos3() error {
 		minio.PutObjectOptions{},
 	)
 	if err != nil {
-		log.Println(111, err)
+		logger.Log.WithField("code", 111).Error(err)
 		return err
 	}
-	log.Println(111)
+	logger.Log.WithField("code", 111).Info("WriteTos3 called")
 	return nil
 }
 

@@ -3,7 +3,7 @@ package controller
 import (
 	AppContext "context"
 	"fmt"
-	"log"
+	"github.com/amupxm/go-video-concat/internal/logger"
 	"net/http"
 
 	"github.com/amupxm/go-video-concat/models"
@@ -51,7 +51,7 @@ func Generator_Upload(context *gin.Context) {
 			"message": err,
 		})
 	}
-	log.Print(uploadInformation.LastModified.Second())
+	logger.Log.Infof("File uploaded, last modified second: %d", uploadInformation.LastModified.Second())
 	context.JSON(200, gin.H{
 		"ok":        true,
 		"message":   "file uploaded successfully",
@@ -99,7 +99,7 @@ func Generator_file(context *gin.Context) {
 	var gen ffmpeg.FFmpeg_Generator
 	file, _, status := gen.GetFromS3(code)
 	if status != nil {
-		log.Println(status)
+		logger.Log.Warn(status)
 		context.JSON(http.StatusAccepted, gin.H{
 			"ok": false,
 		})

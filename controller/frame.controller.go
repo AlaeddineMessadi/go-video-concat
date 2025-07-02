@@ -4,7 +4,7 @@ import (
 	AppContext "context"
 	"fmt"
 
-	"log"
+	"github.com/amupxm/go-video-concat/internal/logger"
 	"net/http"
 
 	frame "github.com/amupxm/go-video-concat/interfaces/frame"
@@ -53,7 +53,7 @@ func Frame_Upload(context *gin.Context) {
 			"message": err,
 		})
 	}
-	log.Print(uploadInformation.LastModified.Second())
+	logger.Log.Infof("File uploaded, last modified second: %d", uploadInformation.LastModified.Second())
 	context.JSON(200, gin.H{
 		"ok":        true,
 		"message":   "file uploaded successfully",

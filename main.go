@@ -1,38 +1,48 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/amupxm/go-video-concat/config"
 	ApiController "github.com/amupxm/go-video-concat/controller"
 	"github.com/amupxm/go-video-concat/packages/cache"
-	postgres "github.comcom/amupxm/go-video-concat/packages/database"
+	postgres "github.com/amupxm/go-video-concat/packages/database"
 	s3 "github.com/amupxm/go-video-concat/packages/s3"
+	"github.com/amupxm/go-video-concat/internal/logger"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	logger.Init()
+	logger.Log.Info("main() started")
+
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
-		fmt.Println("Running database migration...")
+		logger.Log.Info("Running database migration...")
 		// To be implemented: Load config and run GORM migration
-		fmt.Println("Migration complete.")
+		logger.Log.Info("Migration complete.")
 		return
 	}
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logger.Log.Fatalf("Failed to load config: %v", err)
 	}
+	logger.Log.Info("Config loaded successfully")
 
 	// =======  Database and Storage =========
 	postgres.PostgresConnection.ConnectDatabase(cfg)
+	logger.Log.Info("Database connected")
+
 	buckets := []string{"frame", "amupxm", "thumbnails", "splash", "upload", "splash-base", "splash-audio", "outputs"}
 	s3.ObjectStorage.Connect(cfg)
+	logger.Log.Info("S3 connected")
+
 	s3.InitBuckets(buckets)
+	logger.Log.Info("Buckets initialized")
+
 	cache.Init(cfg)
+	logger.Log.Info("Redis cache initialized")
 	// =======================================
 
 	router := gin.Default()
@@ -65,5 +75,9 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	router.Run("0.0.0.0:" + port)
+	
+	logger.Log.Infof("Server starting on port %s", port)
+	if err := router.Run("0.0.0.0:" + port); err != nil {
+		logger.Log.Errorf("Failed to start server: %v", err)
+	}
 }
