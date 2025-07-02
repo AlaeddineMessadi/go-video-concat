@@ -23,6 +23,9 @@ services:
       MINIO_HOST: ${Minio_host}
       MINIO_USER: ${Minio_user}
       MINIO_PASSWORD: ${Minio_password}
+    depends_on:
+      minio:
+        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
@@ -34,6 +37,7 @@ services:
     env_file: .env
     ports:
       - "9000:9000"
+      - "9001:9001"
     volumes:
       - "./data/minio:/data:Z"
     networks:
