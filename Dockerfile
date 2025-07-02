@@ -1,17 +1,10 @@
-FROM  golang:1.16.4
+FROM golang:1.20-alpine
+WORKDIR /app
 
-WORKDIR /go/src/app/amupxm
-
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libmediainfo-dev \
-    zlib* \
-    gcc  && rm -rf /var/lib/apt/lists/*
-COPY . .
-
+COPY go.mod go.sum ./
 RUN go mod download
 
+COPY . .
+RUN go build -o main .
 
-RUN go build -v .
-
-CMD [ "./go-video-concat" ]
+CMD ["./main"]
