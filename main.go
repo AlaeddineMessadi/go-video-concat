@@ -34,6 +34,9 @@ func main() {
 	postgres.PostgresConnection.ConnectDatabase(cfg)
 	logger.Log.Info("Database connected")
 
+	postgres.AutoMigration()
+	logger.Log.Info("Database migrated")
+
 	buckets := []string{"frame", "amupxm", "thumbnails", "splash", "upload", "splash-base", "splash-audio", "outputs"}
 	s3.ObjectStorage.Connect(cfg)
 	logger.Log.Info("S3 connected")
