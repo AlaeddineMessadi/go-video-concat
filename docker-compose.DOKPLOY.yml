@@ -25,6 +25,7 @@ services:
       MINIO_PASSWORD: ${Minio_password}
     depends_on:
       minio:
+        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
