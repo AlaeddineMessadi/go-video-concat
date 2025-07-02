@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      # Go app will read these via os.Getenv
+      GIN_MODE: release
+
+      # Database (external)
+      DBHOST: ${dbhost}
+      DBNAME: ${dbname}
+      DBUSERNAME: ${dbusername}
+      DBPASS: ${dbpass}
+      DBPORT: ${dbport}
+
+      # Redis (external)
+      REDIS_HOST: ${Redis_host}
+      REDIS_PASSWORD: ${Redis_password}
+
+      # Minio (local)
+      MINIO_HOST: ${Minio_host}
+      MINIO_USER: ${Minio_user}
+      MINIO_PASSWORD: ${Minio_password}
+    ports:
+      - "8080:8080"
+    networks:
+      - inner
+
+  minio:
+    image: minio/minio:latest
+    command: server /export
+    env_file: .env
+    ports:
+      - "9000:9000"
+    volumes:
+      - "./data/minio:/data:Z"
+    networks:
+      - inner
+
+networks:
+  inner:
+    external: true
