@@ -38,6 +38,7 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
+      - "36249:36249"
     volumes:
       - "./data/minio:/data:Z"
     healthcheck:
