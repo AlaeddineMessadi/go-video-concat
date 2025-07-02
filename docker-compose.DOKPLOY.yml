@@ -1,5 +1,4 @@
-version: "3.8"
-
+# docker-compose.dokploy.yml
 services:
   app:
     build: .
@@ -8,26 +7,24 @@ services:
       minio:
         condition: service_healthy
     environment:
-      GIN_MODE: release
+      GIN_MODE: ${GIN_MODE:-release}
+      PORT: ${PORT:-8080}
 
       # External Postgres (NocoDB)
-      DBHOST: ${dbhost}
-      DBNAME: ${dbname}
-      DBUSERNAME: ${dbusername}
-      DBPASS: ${dbpass}
-      DBPORT: ${dbport}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
 
       # External Redis (DragonflyDB)
-      REDIS_HOST: ${Redis_host}
-      REDIS_PASSWORD: ${Redis_password}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
 
       # Local MinIO
-      MINIO_HOST: ${Minio_host}
-      MINIO_USER: ${Minio_user}
-      MINIO_PASSWORD: ${Minio_password}
-
-      # Ensure your Go server binds to 0.0.0.0:8080
-      PORT: "8080"
+      MINIO_HOST: ${MINIO_HOST}
+      MINIO_USER: ${MINIO_USER}
+      MINIO_PASSWORD: ${MINIO_PASSWORD}
     ports:
       - "8080:8080"
     networks:
@@ -35,7 +32,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    command: server /export
+    command: server /data --console-address ":9001"
     env_file: .env
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
